@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Click Game</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('fundo.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #00000080;
+      text-align: center;
+      width: 300px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    #pontos {
+      font-size: 2em;
+      margin: 20px 0;
+    }
+
+    button {
+      padding: 20px 40px;
+      font-size: 1.2em;
+      cursor: pointer;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #timer {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+
+    #recorde {
+      margin-top: 15px;
+      font-size: 1em;
+      color: #555;
+    }
+
+    #nomeInput {
+      margin-top: 10px;
+    }
+
+    #nomeInput input {
+      padding: 5px;
+      font-size: 1em;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>Click Game!</h1>
+    <p id="pontos">Pontos: 0</p>
+    <button onclick="clicar()">Clique Aqui!</button>
+    <p id="timer">Tempo restante: 30s</p>
+    <p id="recorde">Recorde: 0 (ninguém ainda!)</p>
+    <div id="nomeInput" style="display: none;">
+      <input type="text" id="nomeJogador" placeholder="Digite seu nome" />
+      <button onclick="salvarRecorde()">Salvar</button>
+    </div>
+  </div>
+
+  <!-- Áudio de fundo -->
+  <audio id="musicaFundo" loop>
+    <source src="musica_fundo.mp3" type="audio/mp3">
+    Seu navegador não suporta o elemento de áudio.
+  </audio>
+
+  <script>
+    let pontos = 0;
+    let tempo = 30;
+    let jogoAtivo = true;
+
+    let recorde = localStorage.getItem("recorde") || 0;
+    let nomeRecordista = localStorage.getItem("nomeRecordista") || "ninguém ainda!";
+
+    document.getElementById("recorde").innerText = `Recorde: ${recorde} (${nomeRecordista})`;
+
+    // Áudios dos marcos
+    const audio50 = new Audio("audio50.mp3");
+    const audio100 = new Audio("audio100.mp3");
+    const audio150 = new Audio("audio150.mp3");
+    const audio200 = new Audio("audio200.mp3");
+    const audioRecorde = new Audio("audioRecorde.mp3");
+
+    let marco50 = false;
+    let marco100 = false;
+    let marco150 = false;
+    let marco200 = false;
+    let bateuRecorde = false;
+
+    // Função que começa a música de fundo
+    function iniciarMusicaFundo() {
+      const musicaFundo = document.getElementById("musicaFundo");
+      musicaFundo.volume = 0.1; // volume ainda mais baixo
+      musicaFundo.play();
+    }
+
+    function clicar() {
+      if (jogoAtivo) {
+        pontos++;
+        document.getElementById("pontos").innerText = "Pontos: " + pontos;
+
+        if (pontos >= 50 && !marco50) {
+          audio50.play();
+          marco50 = true;
+        }
+        if (pontos >= 100 && !marco100) {
+          audio100.play();
+          marco100 = true;
+        }
+        if (pontos >= 150 && !marco150) {
+          audio150.play();
+          marco150 = true;
+        }
+        if (pontos >= 200 && !marco200) {
+          audio200.play();
+          marco200 = true;
+        }
+        if (pontos > recorde && !bateuRecorde) {
+          audioRecorde.play();
+          bateuRecorde = true;
+        }
+
+        // Iniciar música de fundo no primeiro clique
+        if (pontos === 1) {
+          iniciarMusicaFundo();
+        }
+      }
+    }
+
+    const contagem = setInterval(() => {
+      if (tempo > 0) {
+        tempo--;
+        document.getElementById("timer").innerText = "Tempo restante: " + tempo + "s";
+      } else {
+        clearInterval(contagem);
+        jogoAtivo = false;
+        document.getElementById("timer").innerText = "Fim de jogo! Pontuação final: " + pontos;
+
+        // Pausar música quando o jogo terminar
+        const musicaFundo = document.getElementById("musicaFundo");
+        musicaFundo.pause();
+
+        if (pontos > recorde) {
+          document.getElementById("nomeInput").style.display = "block";
+        } else {
+          document.getElementById("nomeInput").style.display = "none";
+        }
+      }
+    }, 1000);
+
+    function salvarRecorde() {
+      const nome = document.getElementById("nomeJogador").value.trim();
+
+      if (nome !== "") {
+        localStorage.setItem("recorde", pontos);
+        localStorage.setItem("nomeRecordista", nome);
+        document.getElementById("recorde").innerText = `Recorde: ${pontos} (${nome})`;
+        document.getElementById("nomeInput").style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
