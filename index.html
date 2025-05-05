@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Click Game</title>
   <style>
     * {
@@ -24,15 +25,17 @@
 
     #container {
       background-color: white;
-      padding: 40px;
+      padding: 30px 20px;
       border-radius: 15px;
       box-shadow: 0 0 20px #00000080;
       text-align: center;
-      width: 300px;
+      width: 90%;
+      max-width: 350px;
     }
 
     h1 {
       margin-bottom: 20px;
+      font-size: 1.8em;
     }
 
     #pontos {
@@ -41,8 +44,8 @@
     }
 
     button {
-      padding: 20px 40px;
-      font-size: 1.2em;
+      padding: 20px;
+      font-size: 1.5em;
       cursor: pointer;
       background-color: #3498db;
       color: white;
@@ -58,7 +61,7 @@
     #timer {
       margin-top: 20px;
       font-weight: bold;
-      font-size: 1.1em;
+      font-size: 1.2em;
     }
 
     #recorde {
@@ -72,9 +75,10 @@
     }
 
     #nomeInput input {
-      padding: 5px;
+      padding: 8px;
       font-size: 1em;
       margin-right: 5px;
+      max-width: 60%;
     }
   </style>
 </head>
@@ -84,18 +88,12 @@
     <p id="pontos">Pontos: 0</p>
     <button onclick="clicar()">Clique Aqui!</button>
     <p id="timer">Tempo restante: 30s</p>
-    <p id="recorde">Recorde: 0 (ninguém ainda!)</p>
+    <p id="recorde">Recorde: 0 (ninguÃ©m ainda!)</p>
     <div id="nomeInput" style="display: none;">
       <input type="text" id="nomeJogador" placeholder="Digite seu nome" />
       <button onclick="salvarRecorde()">Salvar</button>
     </div>
   </div>
-
-  <!-- Áudio de fundo -->
-  <audio id="musicaFundo" loop>
-    <source src="musica_fundo.mp3" type="audio/mp3">
-    Seu navegador não suporta o elemento de áudio.
-  </audio>
 
   <script>
     let pontos = 0;
@@ -103,29 +101,30 @@
     let jogoAtivo = true;
 
     let recorde = localStorage.getItem("recorde") || 0;
-    let nomeRecordista = localStorage.getItem("nomeRecordista") || "ninguém ainda!";
+    let nomeRecordista = localStorage.getItem("nomeRecordista") || "ninguÃ©m ainda!";
 
     document.getElementById("recorde").innerText = `Recorde: ${recorde} (${nomeRecordista})`;
 
-    // Áudios dos marcos
     const audio50 = new Audio("audio50.mp3");
     const audio100 = new Audio("audio100.mp3");
     const audio150 = new Audio("audio150.mp3");
     const audio200 = new Audio("audio200.mp3");
     const audioRecorde = new Audio("audioRecorde.mp3");
 
+    const musicaFundo = new Audio("musica.mp3");
+    musicaFundo.loop = true;
+    musicaFundo.volume = 0.1; // volume baixinho
+    musicaFundo.play().catch(() => {
+      document.body.addEventListener("click", () => {
+        musicaFundo.play();
+      }, { once: true });
+    });
+
     let marco50 = false;
     let marco100 = false;
     let marco150 = false;
     let marco200 = false;
     let bateuRecorde = false;
-
-    // Função que começa a música de fundo
-    function iniciarMusicaFundo() {
-      const musicaFundo = document.getElementById("musicaFundo");
-      musicaFundo.volume = 0.1; // volume ainda mais baixo
-      musicaFundo.play();
-    }
 
     function clicar() {
       if (jogoAtivo) {
@@ -152,11 +151,6 @@
           audioRecorde.play();
           bateuRecorde = true;
         }
-
-        // Iniciar música de fundo no primeiro clique
-        if (pontos === 1) {
-          iniciarMusicaFundo();
-        }
       }
     }
 
@@ -167,11 +161,7 @@
       } else {
         clearInterval(contagem);
         jogoAtivo = false;
-        document.getElementById("timer").innerText = "Fim de jogo! Pontuação final: " + pontos;
-
-        // Pausar música quando o jogo terminar
-        const musicaFundo = document.getElementById("musicaFundo");
-        musicaFundo.pause();
+        document.getElementById("timer").innerText = "Fim de jogo! PontuaÃ§Ã£o final: " + pontos;
 
         if (pontos > recorde) {
           document.getElementById("nomeInput").style.display = "block";
@@ -183,7 +173,6 @@
 
     function salvarRecorde() {
       const nome = document.getElementById("nomeJogador").value.trim();
-
       if (nome !== "") {
         localStorage.setItem("recorde", pontos);
         localStorage.setItem("nomeRecordista", nome);
